@@ -1,33 +1,64 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import { SPACE_ID, ACCESS_TOKEN } from "./key";
+import Axios from 'axios';
 
-const query = `
-{
-  examplePage(id: "1N0hGtxKYYydR05WnGjQ9R") {
-    exampleTitle
-    exampleLogo {
-      url
-    }
-  }
-}
-`;
+// const query = `
+// {
+//   examplePage(id: "1N0hGtxKYYydR05WnGjQ9R") {
+//     exampleTitle
+//     exampleLogo {
+//       url
+//     }
+//   }
+// }
+// `;
 
 function App() {
   const [page, setPage] = useState(null);
-  useEffect(() => {
-    window
-      .fetch(`https://graphql.contentful.com/content/v1/spaces/${SPACE_ID}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${ACCESS_TOKEN}`
-        },
-        body: JSON.stringify({ query }),
+  // useEffect(() => {
+  //   window
+  //     .fetch(`https://graphql.contentful.com/content/v1/spaces/${SPACE_ID}`, {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Authorization: `Bearer ${ACCESS_TOKEN}`
+  //       },
+  //       body: JSON.stringify({ query }),
+  //     })
+  //     .then((response) => response.json())
+  //     .then((json) => setPage(json.data.examplePage))
+  // }, []);
+
+  useEffect(() => {getPage()}, []);
+  async function getPage() {
+    await Axios({
+      method: "POST",
+      url: `https://graphql.contentful.com/content/v1/spaces/${SPACE_ID}`,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${ACCESS_TOKEN}`
+      },
+      data: {
+        query: `
+                  query {
+                    examplePage(id: "1N0hGtxKYYydR05WnGjQ9R") {
+                      exampleTitle
+                      exampleLogo {
+                        url
+                      }
+                    }
+                  }
+                `
+      },  
+ 
+    })
+      .then((response) => { 
+        console.log(response.data.data.examplePage)
+        setPage(response.data.data.examplePage) 
       })
-      .then((response) => response.json())
-      .then((json) => setPage(json.data.examplePage))
-  }, []);
+      
+  }
 
   if (!page) {
     return "Loading...";
